@@ -1,3 +1,5 @@
+
+
 ## Vagrant Plugins
 
 1. [vagrant-git](https://github.com/Learnosity/vagrant-git) for managing git repositories
@@ -89,9 +91,40 @@ Vagrant.configure(2) do |config|
 end
 ```
 
-### Example
+### Referencing particular machines
+
+* `vagrant up` starts the whole cluster (unless you set `autostart: false` to one of the machines like: `config.vm.define "db_follower", autostart: false`)
+
+* `vagrant up NAME` brings up only the specified machine
+
+* `vagrant up/ssh/destroy/save/[OTHER] NAME` perform the command against the given machine
+
+
+
+## Example
 
 Run `vagrant up`. You will get three VMs with HTTP server running on each of them. Their 80 ports are redirected to 8081, 8082 and 8083 respectively:
 
 ![alt](img/example.png)
+
+Start python SimpleHTTPServer in the /home/vagrant/www direcotry. It contains appropriate `index.html` file:
+
+```bash
+vagrant ssh td-host1
+python -m SimpleHTTPServer 8080
+```
+The HTTP server is accessible in two ways on each host:
+
+* `td-host1`
+   * http://192.169.0.1:8081/ (through port mapping)
+   * http://192.169.0.101:8080/ (through private network)
+* `td-host2`
+   * http://192.169.0.1:8082/ (through port mapping)
+   * http://192.169.0.102:8080/ (through private network)
+
+## Remarks
+
+* duplicated provisioning - for example fetch the same packages for each VM (solvable via plugins)
+* downloading the same docker images for the VMs (solvable via sending docker images via ssh)
+* by using linked-clones differential disks are used which dramatically speeds-up the process of provisioning a VM
 

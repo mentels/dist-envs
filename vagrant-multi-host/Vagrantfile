@@ -1,3 +1,5 @@
+HTTP_PORT = 8080
+
 $prepare_apt = <<SCRIPT
 wget http://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && \
 dpkg -i erlang-solutions_1.0_all.deb && \
@@ -31,11 +33,23 @@ apt-get update -qq; apt-get install -q -y --force-yes lxc-docker
 usermod -a -G docker vagrant
 SCRIPT
 
+# $http_server = <<SCRIPT
+# cd /home/vagrant && git clone https://github.com/ninenines/cowboy.git
+# git checkout tags/1.0.4
+# cd cowboy/examples/static_world
+# echo "<h1>Hello from $1</h1>" > index.html
+# make
+# _rel/static_world_example/bin/static_world_example start
+# chown -R vagrant: /home/vagrant/cowboy
+# SCRIPT
+
 $http_server = <<SCRIPT
-mkdir /home/vagrant/www && cd /home/vagrant/www
-echo $1 > index.html
-python -m SimpleHTTPServer
+cd /home/vagrant
+mkdir -p www
+echo "$1" >> www/index.html
+chown -R vagrant: www/
 SCRIPT
+
 
 def provision_with_shell(node)
   node.vm.provision "prepare_apt", type: "shell", inline: $prepare_apt
@@ -52,7 +66,7 @@ def provision_host(node, host_id)
   node.vm.provision "http_server",
                     type: "shell",
                     inline: $http_server,
-                    args: "Hello from #{host_id}!"
+                    args: "'Hello from host #{host_id}' #{HTTP_PORT}"
 end
 
 Vagrant.configure(2) do |config|
@@ -85,7 +99,7 @@ Vagrant.configure(2) do |config|
     config.vm.define "td-host#{i}" do |node|
       node.vm.hostname = "td-host#{i}"
       node.vm.network :forwarded_port, guest: 22, host: 2200+i, id: "ssh", auto_correct: true
-      node.vm.network :forwarded_port, guest: 8080, host: 8080+i, auto_correct: true
+      node.vm.network :forwarded_port, guest: HTTP_PORT, host: 8080+i, auto_correct: true
       node.vm.network :private_network, ip: "192.169.0.10#{i}"
       provision_with_shell node
       provision_host node, i
