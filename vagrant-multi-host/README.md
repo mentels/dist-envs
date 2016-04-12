@@ -1,5 +1,3 @@
-
-
 ## Vagrant Plugins
 
 1. [vagrant-git](https://github.com/Learnosity/vagrant-git) for managing git repositories

@@ -9,7 +9,7 @@ SCRIPT
 $packages = <<SCRIPT
 apt-get install -y emacs24-nox htop bridge-utils openvswitch-switch \
 autoconf libncurses-dev build-essential libssl-dev g++ curl \
-esl-erlang=1:18.3 python2.7
+esl-erlang=1:18.3 python2.7 mininet
 SCRIPT
 
 $ssh_config = <<SCRIPT
