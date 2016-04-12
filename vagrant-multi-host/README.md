@@ -107,6 +107,8 @@ Run `vagrant up`. You will get three VMs with HTTP server running on each of the
 
 ![alt](img/example.png)
 
+#### HTTP Server
+
 Start python SimpleHTTPServer in the /home/vagrant/www direcotry. It contains appropriate `index.html` file:
 
 ```bash
@@ -121,6 +123,27 @@ The HTTP server is accessible in two ways on each host:
 * `td-host2`
    * http://192.169.0.1:8082/ (through port mapping)
    * http://192.169.0.102:8080/ (through private network)
+
+### Erlang Cluster
+
+On `td-host2`:
+
+`vagrant@td-host2:~/www$ erl -sname b -setcookie ala`
+
+On `td-host1`:
+
+```bash
+agrant@td-host1:~/www$ erl -sname a -setcookie ala
+Erlang/OTP 18 [erts-7.3] [source-d2a6d81] [64-bit] [smp:2:2] [async-threads:10] [hipe] [kernel-poll:false]
+
+Eshell V7.3  (abort with ^G)
+(a@td-host1)1> erlang:get_cookie().
+ala
+(a@td-host1)2> spawn('b@td-host2', fun() -> io:format("hello from ~p~n", [node()]) end).
+<7364.46.0>
+hello from 'b@td-host2'
+(a@td-host1)3>
+```
 
 ## Remarks
 
