@@ -206,6 +206,7 @@ sudo brctl delbr br1
 * Docker is based on this mechanism
 * To enable Erlang distributed you have to "do something" with epmd to make it work
 * Linux Bridge can be replaces with something more powerful - like OpenVSwitch
+* Crazy stuff is possible: like creating the NS in the Vagrant VM with another NS in another vVagrant VM - everything with just this Linux tool
 
 ## References
 
