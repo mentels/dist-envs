@@ -26,7 +26,7 @@ The Linux bridge code implements a subset of the ANSI/IEEE 802.1d standard. [1].
 
 ## DEMO
 
-It is based on the machines prepared with vagrant in [vagrant-multi-host]("../../vagrant-multi-host")
+It is based on the machines prepared with vagrant in [vagrant-multi-host](https://github.com/mentels/dist-envs/tree/master/vagrant-multi-host)
 
 ![alt](img/example.png)
 
@@ -163,9 +163,63 @@ listening on br1, link-type EN10MB (Ethernet), capture size 65535 bytes
 19:14:41.438195 IP 10.0.0.2 > 10.0.0.1: ICMP echo reply, id 27346, seq 39, length 64
 ```
 
+### Bridge as an interface
+
+You can also assign an IP address to the bridge:
+
+```bash
+vagrant@td-host1:~/www$ sudo ip addr add 10.0.0.100/24 dev br1
+vagrant@td-host1:~/www$ ping -c 1 10.0.0.1
+PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
+64 bytes from 10.0.0.1: icmp_seq=1 ttl=64 time=0.069 ms
+
+--- 10.0.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.069/0.069/0.069/0.000 ms
+vagrant@td-host1:~/www$ ping -c 1 10.0.0.2
+PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.
+64 bytes from 10.0.0.2: icmp_seq=1 ttl=64 time=0.069 ms
+
+--- 10.0.0.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.069/0.069/0.069/0.000 ms
+```
+
+<!-- ### Reaching your NS from the outside??? (providing you're in the Vagrant VM) -->
+
+<!-- Yes, it is possible. You need to add another veth with one end in the 192.169.0.0/24 subnet and one in the 10.0.0.0/24. Then appropriate gateways are need  -->
+
+### Teardown
+
+```bash
+sudo ip link del ns1_out # removing an one end of the veth pair removes the other as well
+sudo ip link del ns2_out
+sudo ip netns del ns1
+sudo ip netns del ns2
+sudo ip link set dev br1 down
+sudo brctl delbr br1
+```
+
 ## Remarks
 
 * Tedious to setup but great power
 * Docker is based on this mechanism
 * To enable Erlang distributed you have to "do something" with epmd to make it work
 * Linux Bridge can be replaces with something more powerful - like OpenVSwitch
+
+## References
+
+* http://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/
+* http://www.linuxfoundation.org/collaborate/workgroups/networking/bridge
+* http://man7.org/linux/man-pages/man8/ip-netns.8.html
+* An example application: https://github.com/mentels/pair
+
+#### Shortcut for setting the ns1 part of the demo
+
+```bash
+sudo ip netns add ns1
+sudo ip link add ns1_in type veth peer name ns1_out
+sudo ip link set ns1_in netns ns1
+sudo ip netns exec ns1 ifconfig ns1_in 10.0.0.1/24 up
+sudo ip link set dev ns1_out up
+```
