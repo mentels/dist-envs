@@ -63,9 +63,10 @@ config.vm.box = "ubuntu/trusty64"
 ```ruby
 
 $http_server = <<SCRIPT
-mkdir /home/vagrant/www && cd /home/vagrant/www
-echo $1 > index.html
-python -m SimpleHTTPServer
+cd /home/vagrant
+mkdir -p www
+echo "$1" >> www/index.html
+chown -R vagrant: www/
 SCRIPT
 
 def provision_host(node, host_id)

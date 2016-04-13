@@ -75,7 +75,7 @@ listening on ns1_out, link-type EN10MB (Ethernet), capture size 65535 bytes
 18:55:42.322186 ARP, Request who-has 10.0.0.0 tell td-host1, length 82
 ```
 
-### Move `ns1_out` to ns1 namespace and assign IP address to it
+### Move `ns1_in` to ns1 namespace and assign IP address to it
 
 ```bash
 vagrant@td-host1:~/www$ sudo ip link set ns1_in netns ns1
@@ -92,7 +92,7 @@ vagrant@td-host1:~/www$ sudo ip netns exec ns1 ip a
 
 ```
 
-### Assign IP address to ns1_in and check ping
+### Assign IP address to ns1_out and check ping
 
 ```bash
 vagrant@td-host1:~/www$ sudo ip addr add 10.0.0.10/24 dev ns1_out
